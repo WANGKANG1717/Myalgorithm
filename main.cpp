@@ -6,37 +6,86 @@
  * 统一使用new 和 delete 来管理内存
  */
 int main() {
-    // char *data = "111111111122222333344444566777888899990000";
-    char *data = "111111111111111111111111";
-    uint dataSize = strlen(data);
-    uchar *res = NULL;
-    uint resSize = -1;
-    string HuffmanCode[N];
-    /////////////////////////压缩/////////////////////////////
-    huffmanCompress((uchar *)data, dataSize, res, resSize, HuffmanCode);
-    // for (int i = 0; i < resSize; i++) {
-    //     cout << bitset<8>(res[i]);
-    // }
-    // cout << endl;
-    // /////////////////////////解压缩////////////////////////////
-    uchar *data2 = NULL;
-    uint data2Size = -1;
-    huffmanDecompress(data2, dataSize, res, resSize, HuffmanCode);
-    if (data2Size != dataSize) {
-        cout << "Error data2Size!=dataSize" << endl;
-        exit(0);
+    /*     // char *data = "111111111122222333344444566777888899990000";
+        // char *data = "11111111111231231231231";
+        char *data = "122333444455555000000";
+        uint dataSize = strlen(data);
+        uchar *res = NULL;
+        uint resSize = -1;
+        string HuffmanCode[N];
+        /////////////////////////压缩/////////////////////////////
+        huffmanCompress((uchar *)data, dataSize, res, resSize, HuffmanCode);
+        // for (int i = 0; i < resSize; i++) {
+        //     cout << bitset<8>(res[i]);
+        // }
+        // cout << endl;
+        // /////////////////////////解压缩////////////////////////////
+        uchar *data2 = NULL;
+        huffmanDecompress(data2, dataSize, res, resSize, HuffmanCode);
+
+        for (int i = 0; i < dataSize; i++) {
+            if (data2[i] != data[i]) {
+                cout << "Error data2[i]!=data[i]" << endl;
+                exit(0);
+            }
+        }
+        cout << "数据一致，请放心使用！" << endl; */
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+    // 122333444455555000000
+    // string tmp = "122333444455555000000";
+    // string pCodeModel = "111011111111110110110000000000101010101101010101010";
+    //                  "11101111111111011011000000000010101010110101010101000000"
+    //                  "11101111111111011011000000000010101010110101010101000000"
+    string tmp = "";
+    tmp.reserve(1000000);
+    srand((uint)(time(0)));
+    for (int i = 0; i < 10000000; i++) {
+        tmp.push_back((uchar)randomNum(0, N - 1));
     }
+    // for (int i = 0; i < 1000000; i++) {
+    //     cout << (uint)tmp[i];
+    // }
+    // cout << tmp.size() << endl;
+    uint dataSize = tmp.size();
+    uchar *data = new uchar[dataSize];
+    uchar *res = NULL;
+    uint resSize;
     for (int i = 0; i < dataSize; i++) {
-        if (data2[i] != data[i]) {
-            cout << "Error data2[i]!=data[i]" << endl;
+        data[i] = tmp[i];
+    }
+    tmp.clear();  // 释放空闲内存
+    string HuffmanCode[N];
+    huffmanCompress(data, dataSize, res, resSize, HuffmanCode);
+    // debug(dataSize);
+    uchar *data2 = NULL;
+    huffmanDecompress(data2, dataSize, res, resSize, HuffmanCode);
+    for (int i = 0; i < dataSize; i++) {
+        if (data[i] != data2[i]) {
+            Error("data[i] != data2[i]");
             exit(0);
         }
     }
-    cout << "数据一致，请放心使用！" << endl;
-    // for (int i = 0; i<data)
-    // string HuffmanCode2[6] = {"000", "001", "01", "100", "101", "11"};
-    // LinkHuffmanTree T = generateHuffmanTree(HuffmanCode2);
-    // printLinkHuffmanTree(T);
+    cout << "数据一致！" << endl;
+    // for (int i = 0; i < dataSize; i++) {
+    //     cout << (uint)data2[i];
+    // }
+    // cout << endl;
+
+    // cout << resSize << endl;
+    // for (int i = 0; i < resSize; i++) {
+    //     cout << bitset<8>(res[i]);
+    // }
+    // for (int i = 0; i < N; i++) {
+    //     cout << HuffmanCode[i] << endl;
+    // }
+
+    // for (int i = 0; i < dataSize; i++) {
+    //     // cout << char(data[i] + '0');
+    //     cout << (uint)data[i];
+    // }
+
+    ///////////////////////////////////////////////////////////////////////////////////////
     // for (int i = 0; i < N; i++) {
     //     cout << HuffmanCode[i] << " " << HuffmanCode[i].size() << endl;
     // }
