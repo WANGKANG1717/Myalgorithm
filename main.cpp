@@ -5,7 +5,45 @@
  * @date: 2023-04-20 09:44:20
  * 统一使用new 和 delete 来管理内存
  */
+#include "cpp/basic.cpp"
+#include "cpp/header/AdaptableMessageHeader.cpp"
+#include "cpp/header/ColorPalette.cpp"
+#include "cpp/header/FileHeader.cpp"
+#include "cpp/header/ImageBitmapData.cpp"
+#include "cpp/header/MessageHeader.cpp"
+#include "cpp/imgType/BMP.cpp"
+#include "cpp/imgType/DIMG.cpp"
+#include "head/basic.h"
+#include "head/header/AdaptableMessageHeader.h"
+#include "head/header/ColorPalette.h"
+#include "head/header/FileHeader.h"
+#include "head/header/ImageBitmapData.h"
+#include "head/header/MessageHeader.h"
+#include "head/imgType/BMP.h"
+#include "head/imgType/DIMG.h"
 int main() {
+    /*     DIMG dimg("11呃呃.dimg");
+        uint dataSize = dimg.getImgData().getSize();
+        cout << dataSize << endl;
+        uchar *data = new uchar[dataSize + 10];
+        uchar *res = NULL;
+        uint resSize;
+        memcpy(data, dimg.getImgData().getImgData(), dataSize);
+        string HuffmanCode[N];
+        huffmanCompress(data, dataSize, res, resSize, HuffmanCode);
+        // debug(dataSize);
+        // uchar *data2 = NULL;
+        // huffmanDecompress(data2, dataSize, res, resSize, HuffmanCode);
+        // for (int i = 0; i < dataSize; i++) {
+        //     if (data[i] != data2[i]) {
+        //         Error("data[i] != data2[i]");
+        //         exit(0);
+        //     }
+        // }
+        cout << "压缩前数据大小:" << dataSize << endl;
+        cout << "压缩后数据大小:" << resSize << endl;
+        cout << "压缩率:" << (resSize * 1.0 / dataSize) * 100 << "%" << endl;
+        cout << "数据一致！恭喜恭喜！！！" << endl; */
     /*     // char *data = "111111111122222333344444566777888899990000";
         // char *data = "11111111111231231231231";
         char *data = "122333444455555000000";
@@ -38,11 +76,23 @@ int main() {
     //                  "11101111111111011011000000000010101010110101010101000000"
     //                  "11101111111111011011000000000010101010110101010101000000"
     string tmp = "";
-    tmp.reserve(1000000);
-    srand((uint)(time(0)));
-    for (int i = 0; i < 10000000; i++) {
-        tmp.push_back((uchar)randomNum(0, N - 1));
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < i + 1; j++) {
+            tmp.push_back((uchar)i);
+        }
     }
+    // for (int i = 0; i < 100000; i++) {
+    //     tmp.push_back((uchar)255);
+    // }
+    for (int i = 0; i < 100000; i++) {
+        tmp.push_back((uchar)200);
+    }
+    /*     tmp.reserve(10000000);
+        srand((uint)(time(0)));
+        for (int i = 0; i < 100000; i++) {
+            tmp.push_back((uchar)randomNum(0, N - 1));
+        }
+        tmp.shrink_to_fit(); */
     // for (int i = 0; i < 1000000; i++) {
     //     cout << (uint)tmp[i];
     // }
@@ -54,7 +104,6 @@ int main() {
     for (int i = 0; i < dataSize; i++) {
         data[i] = tmp[i];
     }
-    tmp.clear();  // 释放空闲内存
     string HuffmanCode[N];
     huffmanCompress(data, dataSize, res, resSize, HuffmanCode);
     // debug(dataSize);
@@ -66,7 +115,13 @@ int main() {
             exit(0);
         }
     }
-    cout << "数据一致！" << endl;
+    cout << "压缩前数据大小:" << dataSize << endl;
+    cout << "压缩后数据大小:" << resSize << endl;
+    cout << "压缩率:" << (resSize * 1.0 / dataSize) * 100 << "%" << endl;
+    cout << "数据一致！恭喜恭喜！！！" << endl;
+    // for (int i = 0; i < N; i++) {
+    //     cout << HuffmanCode[i] << endl;
+    // }
     // for (int i = 0; i < dataSize; i++) {
     //     cout << (uint)data2[i];
     // }

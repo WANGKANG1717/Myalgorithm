@@ -123,7 +123,7 @@ string Decrypt(string p, uint key) {
  */
 // N 代表255个颜色分量，也即要编码的叶子节点的数量 0-N-1(数据范围)
 // sumN 代表总的哈夫曼树的节点总数
-const uint N = 6;
+const uint N = 256;
 const uint sumN = N * 2 - 1;
 uint num[N];                  // 0-255存储的是颜色分量的个数（也即权值），不排序。
 const uint MAXN = 100000000;  // 预先分配的比较大的空间
@@ -214,6 +214,9 @@ void generateHuffmanCode(uchar *data, uint dataSize, string HuffmanCode[N]) {
     for (int i = 0; i < dataSize; i++) {
         num[(uint)data[i]]++;
     }
+    // for (int i = 0; i < N; i++) {
+    //     cout << i << " : " << num[i] << endl;
+    // }
     // 采用权重为零的第一种解决方案，即初试num[i]=1
     initHuffmanTree();
     // printHuffmanTree();
@@ -271,19 +274,19 @@ uchar DeCode(string pCode, int pos) {
     return c;
 }
 
-string &Convert2Binary(const string &pCode) {
-    string *p = new string();
-    *p = "";
+string Convert2Binary(const string &pCode) {
     if (pCode.size() % 8 != 0) {
         cout << "pCode的长度错误,不为8的整数倍,请检查!" << endl;
-        return *p;
+        exit(0);
     }
-    p->reserve(MAXN);
+    string p = "";
+    p.reserve(pCode.size() / 8 + 1000);
+    debug(pCode.size());
     for (int i = 0; i < pCode.size(); i += 8) {
-        p->push_back(DeCode(pCode, i));
+        p.push_back(DeCode(pCode, i));
     }
-    p->shrink_to_fit();
-    return *p;
+    p.shrink_to_fit();
+    return p;
 }
 
 /**
@@ -295,8 +298,12 @@ string &Convert2Binary(const string &pCode) {
  * @description: 哈夫曼压缩图片数据
  */
 void huffmanCompress(uchar *data, const uint &dataSize, uchar *&res, uint &resSize, string HuffmanCode[N]) {
+    time_t start, end;
     // 第一步，得到哈夫曼编码,存储在变量HuffmanCode中
+    start = clock();
     generateHuffmanCode((uchar *)data, dataSize, HuffmanCode);
+    end = clock();
+    cout << "Time generateHuffmanCode: " << (end - start) * 1.0 / CLOCKS_PER_SEC << endl;
     // printHuffmanTree();
     // for (int i = 0; i < N; i++) {
     //     cout << i << ":" << HuffmanCode[i] << endl;
@@ -306,6 +313,7 @@ void huffmanCompress(uchar *data, const uint &dataSize, uchar *&res, uint &resSi
      *       注意，因为要转换为字节表示，所以，pCode的长度必须为8的倍数，所以编码后，不足8的补零
      *       后面在解码的时候，要维护一个解码数num，保证只解码dataSize个数据
      */
+    start = clock();
     string pCode = "";
     pCode.reserve(dataSize);
     for (int i = 0; i < dataSize; i++) {
@@ -317,6 +325,8 @@ void huffmanCompress(uchar *data, const uint &dataSize, uchar *&res, uint &resSi
         pCode.push_back('0');
     }
     pCode.shrink_to_fit();
+    end = clock();
+    cout << "Time pCode: " << (end - start) * 1.0 / CLOCKS_PER_SEC << endl;
     // cout << pCode << endl;
     // cout << pCode.size() << endl;
     pCode1 = pCode;
@@ -329,7 +339,13 @@ void huffmanCompress(uchar *data, const uint &dataSize, uchar *&res, uint &resSi
      * @date: 2023-04-19 17:34:05
      * 将01字符串转换为二进制数据
      */
+
+    start = clock();
+    cout << 3 << endl;
     string p = Convert2Binary(pCode);
+    cout << 4 << endl;
+    end = clock();
+    cout << "Time1 Convert2Binary: " << (end - start) * 1.0 / CLOCKS_PER_SEC << endl;
     // debug("Convert2Binary");
     // debug(p.size());
     // debug(pCode.size());
@@ -374,9 +390,11 @@ string EnCode(uchar c) {
  */
 string Binary2Convert(uchar *res, uint resSize) {
     string pCode = "";
+    pCode.reserve(resSize * 8 + 1000);
     for (int i = 0; i < resSize; i++) {
         pCode.append(EnCode(res[i]));
     }
+    pCode.shrink_to_fit();
     return pCode;
 }
 
@@ -457,12 +475,14 @@ LinkHuffmanTree generateHuffmanTree(const string HuffmanCode[N]) {
  * @return: 解码后的数据
  * @description: 得到解码后的数据
  */
-string getData(const string pCode, uint dataSize, LinkHuffmanTree T) {
+string &getData(const string pCode, uint dataSize, LinkHuffmanTree T) {
     if (T == NULL) {
         cout << "Error T==NULL getData" << endl;
         exit(0);
     }
-    string p = "";
+    string *p = new string();
+    *p = "";
+    p->reserve(dataSize + 1000);
     LinkHuffmanTree cur = T;
     for (int i = 0; i < pCode.size(); i++) {
         if (pCode[i] == '0') {
@@ -479,12 +499,13 @@ string getData(const string pCode, uint dataSize, LinkHuffmanTree T) {
         }
         // 来到叶子节点
         if (cur->isLeaf == true) {
-            p.push_back(cur->color);
-            if (p.size() == dataSize) break;  // 说明已经获取到足够的数据了
+            p->push_back(cur->color);
+            if (p->size() == dataSize) break;  // 说明已经获取到足够的数据了
             cur = T;
         }
     }
-    return p;
+    p->shrink_to_fit();
+    return *p;
 }
 
 /**
@@ -502,15 +523,19 @@ string getData(const string pCode, uint dataSize, LinkHuffmanTree T) {
  *
  */
 void huffmanDecompress(uchar *&data, const uint dataSize, uchar *res, const uint resSize, const string HuffmanCode[N]) {
+    time_t start, end;
     /**
      @date: 2023-04-19 20:11:53
      * 这里为了简单起见，直接得到二进制字符串
      */
+    start = clock();
     string pCode = Binary2Convert(res, resSize);
     pCode2 = pCode;
     if (pCode1 != pCode2) {
         cout << "Error pCode1!=pCode2" << endl;
     }
+    end = clock();
+    cout << "Time Binary2Convert: " << (end - start) * 1.0 / CLOCKS_PER_SEC << endl;
     // cout << "huffmanDecompress:" << endl;
     // cout << "pCode:\n"
     //      << pCode << endl;
@@ -521,13 +546,19 @@ void huffmanDecompress(uchar *&data, const uint dataSize, uchar *res, const uint
      * 1，使用哈夫曼编码获得哈夫曼树
      * 2，通过哈夫曼树解码01串
      */
+    start = clock();
     LinkHuffmanTree T = generateHuffmanTree(HuffmanCode);  // 经过调试，应该没什么问题了
+    end = clock();
+    cout << "Time generateHuffmanTree: " << (end - start) * 1.0 / CLOCKS_PER_SEC << endl;
     // printLinkHuffmanTree(T);
     /**
      * @date: 2023-04-20 10:22:29
      * 解码得到原来的编码
      */
+    start = clock();
     string p = getData(pCode, dataSize, T);
+    end = clock();
+    cout << "Time getData: " << (end - start) * 1.0 / CLOCKS_PER_SEC << endl;
     // for (int i = 0; i < dataSize; i++) {
     //     cout << p[i];
     // }
